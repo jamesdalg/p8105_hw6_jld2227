@@ -62,4 +62,42 @@ To https://github.com/jamesdalg/p8105_hw6_jld2227.git[0K
 [0K[?25h[?25l
 [0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K
 $[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add -[0K[?25hA[0K[?25l
-[0K[?25h
+[0K[?25hwarning: CRLF will be replaced by LF in p8105_hw6_jld2227.Rmd.[0K[?25l
+The file will have its original line endings in your working directory.[0K
+[0K[?25h[?25l
+[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git p[0K[?25hu[0Ks[0Kh[0K[?25l$ git pus[0K[?25h[?25l$ git pu[0K[?25h[?25l$ git p[0K[?25h[?25l$ git[0K[7G[?25h[?25l$ git c[0K[?25ho[0Km[0Km[0Ki[0Kt[0K[14G[?25l$ git commit -[0K[?25hm[0K[17G[?25l$ git commit -m "[0K[?25ha[0Kd[0K[?25ld[0K[20G[?25h[21G[?25l$ git commit -m "adde[0K[?25hd[0K[24G[?25l$ git commit -m "added d[0K[?25ha[0Kt[0Ka[0K[29G[?25l$ git commit -m "added data i[0K[?25hm[0Kp[0Ko[0Kr[0Kt[0K[36G[?25l$ git commit -m "added data import a[0K[?25hn[0Kd[0K[40G[41G[?25l$ git commit -m "added data import and  f[0K[?25hi[0Kl[0Kt[0Ke[0K[?25lr[0K[46G[?25h[47G[?25l$ git commit -m "added data import and  filter"[0K[?25h[?25l
+[0K[?25h[master 57e75c1] added data import and  filter[0K[?25l
+ 14 files changed, 361 insertions(+), 1 deletion(-)[0K
+ create mode 100644 .Rproj.user/3D61FB9/sources/prop/2C5B0942[0K
+ create mode 100644 .Rproj.user/3D61FB9/sources/prop/49248F1C[0K
+ create mode 100644 .Rproj.user/3D61FB9/sources/prop/INDEX[0K
+ create mode 100644 .Rproj.user/3D61FB9/sources/s-4E0E4211/83CFF24D[0K
+ create mode 100644 .Rproj.user/3D61FB9/sources/s-4E0E4211/83CFF24D-contents[0K
+ create mode 100644 .Rproj.user/3D61FB9/sources/s-4E0E4211/8EB5F208[0K
+ create mode 100644 .Rproj.user/3D61FB9/sources/s-4E0E4211/8EB5F208-contents[0K
+ create mode 100644 .Rproj.user/shared/notebooks/C059ECB9-p8105_hw6_jld2227/1/3D61FB94E0E4211/chun[0Kk
+s.json[0K
+ create mode 100644 .Rproj.user/shared/notebooks/C059ECB9-p8105_hw6_jld2227/1/s/cfivt1hy4r8b6/0000[0K0
+6.csv[0K
+ create mode 100644 .Rproj.user/shared/notebooks/C059ECB9-p8105_hw6_jld2227/1/s/chunks.json[0K
+ create mode 100644 .Rproj.user/shared/notebooks/C059ECB9-p8105_hw6_jld2227/1/s/csetup_chunk/00000[0K2
+.csv[0K
+ create mode 100644 .Rproj.user/shared/notebooks/paths[0K
+ create mode 100644 p8105_hw6_jld2227.Rmd[0K
+[0K[?25h[?25l
+[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git p[0K[?25hu[0Ks[0Kh[0K-[0K[13G[?25l$ git push- u[0K[?25h[15G[14G[?25l$ git push-[0K[13G[?25h[12G[?25l$ git push[0K[?25h[12G[?25l$ git push -[0K[?25hu[0K[15G[?25l$ git push -u o[0K[?25h[?25lr[0K[16G[?25h[17G[?25l$ git push -u ori[0K[17G[?25h[18G[?25l$ git push -u orig[0K[18G[?25h[19G[?25l$ git push -u origi[0K[?25hn[0K[22G[?25l$ git push -u origin m[0K[?25ha[0Ks[0Kt[0Ke[0K[?25lr[0K[27G[?25h[28G[?25l
+[0K[?25hEnumerating objects: 37, done.[0K[?25l
+Counting objects: 100% (37/37), done.[0K
+Delta compression using up to 4 threads.[0K
+Compressing objects:  45% (10/22)[0K[1G[?25hCompressing objects: 100% (22/22), done.[0K[?25l
+Writing objects: 100% (28/28), 9.53 KiB | 1.91 MiB/s, done.[0K
+Total 28 (delta 2), reused 0 (delta 0)[0K
+[0K[?25h[?25lremote: Resolving deltas: 100% (2/2), done.[0K[1G[?25h[?25l
+[0K[?25hTo https://github.com/jamesdalg/p8105_hw6_jld2227.git[0K[?25l
+   1b9f51b..57e75c1  master -> master[0K
+Branch 'master' set up to track remote branch 'master' from 'origin'.[0K
+[0K[?25h[?25l
+[0;32mdalgleish@dalgleishjl [0;35m [0m[0K[1G[?25h[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K[?25l
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add -[0K[?25hA[0K

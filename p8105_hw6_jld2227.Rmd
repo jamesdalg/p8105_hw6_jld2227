@@ -8,11 +8,20 @@ output: github_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
+instruction: Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race.
+Also omit Tulsa, AL – this is a data entry mistake.
+Modifiy victim_race to have categories white and non-white, with white as the reference category.
+Be sure that  victim_age is numeric.
 ```{r data_import}
 
 homicide_data <- read_csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv") %>% #read in data.
-  mutate( victim_first = iconv(x = victim_first, from = "latin1", to =  "ASCII",sub = ""),
+  mutate( victim_first = iconv(x = victim_first, from = "latin1", to =  "ASCII",sub = ""), #fixes bad characters in victim name
           victim_last = iconv(x = victim_last, from = "latin1", to =  "ASCII",sub = ""),
+          victim_age = as.numeric(victim_age), #converts victim age to numeric.
+          victim_race = ifelse(victim_race == "white","white","non-white") %>% #binarizes the categories to white or nonwhite, depending on if the race is "White" or not.
+            as.factor() %>% #converts to factor
+            forcats::fct_relevel("white","non_white"), #sets reference cat to white
           #This removes nonstandard characters that cause problems with skimr.
           city_state = str_c(city,", ",state), #create city state variable by string concatenation.
           unresolved = disposition %in% c("Closed without arrest","Open/No arrest"),
@@ -21,20 +30,10 @@ homicide_data <- read_csv("https://raw.githubusercontent.com/washingtonpost/data
 #creates a variable for whether the case was resolved, to double check the numbers.
 #Included the resolved cases as a separate variable to clearly show that the resolved and unresolved cases sum to the total (and hence the calculations make sense).
   filter(!(city_state %in% c("Dallas, TX","Phoenix, AZ","Kansas City, MO","Tulsa, AL")))
-hom_summ_tbl <- homicide_data %>% 
-  group_by(city_state) %>%  
-  summarise(total = n(), #get the total number of cases by city_state combination.
-            unresolved_cases = sum(unresolved), 
-        #Gets the unresolved cases of each city state combination.
-            resolved_cases = sum(resolved)
-        #Gets the resolved cases of each city state combination.
-            ) %>% 
-  select(city_state, unresolved_cases, resolved_cases, total) 
 
 ```
 
 
-instruction: Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race. Also omit Tulsa, AL – this is a data entry mistake. Modifiy victim_race to have categories white and non-white, with white as the reference category. Be sure that  victim_age is numeric.
 
 For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race (as just defined) as predictors. Save the output of glm as an R object; apply the broom::tidy to this object; and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing non-white victims to white victims keeping all other variables fixed.
 
