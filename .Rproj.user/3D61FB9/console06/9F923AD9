@@ -100,4 +100,28 @@ Total 28 (delta 2), reused 0 (delta 0)[0K
 Branch 'master' set up to track remote branch 'master' from 'origin'.[0K
 [0K[?25h[?25l
 [0;32mdalgleish@dalgleishjl [0;35m [0m[0K[1G[?25h[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K[?25l
-$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add -[0K[?25hA[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add -[0K[?25hA[0Kwarning: CRLF will be replaced by LF in p8105_hw6_jld2227.Rmd.[0K[?25l
+The file will have its original line endings in your working directory.[0K
+[0K[?25h[?25l
+[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git p[0K[?25hu[0K[?25l$ git p[0K[?25h[?25l$ git[0K[7G[?25h[?25l$ git c[0K[?25ho[0Km[0Km[0Ki[0Kt[0K[14G[?25l$ git commit -[0K[?25hm[0K[17G[?25l$ git commit -m "[0K[?25hf[0Ki[0Kn[0Kn[0Ksi[0K[?25l$ git commit -m "finns[0K[?25h[?25l$ git commit -m "finn[0K[?25h[?25l$ git commit -m "fin[0K[?25h[?25l$ git commit -m "fi[0K[?25h[?25l$ git commit -m "f[0K[?25h[?25l$ git commit -m "[0K[?25hm[0Ko[0Kr[0Ke[0K[23G[?25l$ git commit -m "more d[0K[?25ha[0Kt[0Ka[0K[28G[?25l$ git commit -m "more data i[0K[?25hm[0Kp[0Ko[0Kr[0Kt[0K[35G[?25l$ git commit -m "more data import w[0K[?25ho[0Kr[0Kk[0K"[0K[?25l
+[0K[?25h[master a7f6c33] more data import work[0K[?25l
+ 8 files changed, 78 insertions(+), 31 deletions(-)[0K
+[0K[?25h[?25l
+[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K
+$[0K[3G[?25h[?25l$ g[0K[?25hi[0Kt[0K[7G[8G[?25l$ git  p[0K[?25hu[0Ks[0Kh[0K[13G[?25l$ git  push -[0K[?25hu[0K[16G[?25l$ git  push -u o[0K[?25hr[0Kg[0K[?25l$ git  push -u or[0K[?25hi[0Kg[0Ki[0Kn[0K[23G[?25l$ git  push -u origin m[0K[?25ha[0Ks[0Kt[0Ke[0Kr[0K[?25l
+[0K[?25hEnumerating objects: 41, done.[0K[?25l
+Counting objects: 100% (41/41), done.[0K
+Delta compression using up to 4 threads.[0K
+Compressing objects: 100% (17/17), done.[0K
+Writing objects: 100% (21/21), 2.97 KiB | 1012.00 KiB/s, done.[0K
+Total 21 (delta 7), reused 0 (delta 0)[0K
+[0K[?25hremote: Resolving deltas: 100% (7/7), completed with 7 local objects.[0K[?25l
+[0K[?25hTo https://github.com/jamesdalg/p8105_hw6_jld2227.git[0K[?25l
+   57e75c1..a7f6c33  master -> master[0K
+[0K[?25hBranch 'master' set up to track remote branch 'master' from 'origin'.[0K[?25l
+[0K[?25h[?25l
+[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K
+$[0K[3G[?25h[0m[0K]0;:/c/Users/dalgleish/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[?25l
+[0;32mdalgleish@dalgleishjl [0;35m [0;33m~/Dropbox/Documents/columbia/p8105/hw/p8105_hw6_jld2227[0;36m (master)[0m[0K
+[?25l$ g[0K[?25hi[0Kt[0K[7G[?25l$ git a[0K[?25hd[0Kd[0K[11G[?25l$ git add -[0K[?25hA[0K
