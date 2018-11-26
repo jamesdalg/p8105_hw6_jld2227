@@ -46,14 +46,14 @@ hom_fit <- homicide_data %>%
    filter(city_state == "Baltimore, MD") %$%
   glm(resolved ~ victim_age + victim_sex + victim_race,
       family = binomial())
-all_city_glm <- hom_fit %>% 
-  broom::tidy(conf.int=TRUE) %>% 
-  mutate(OR = exp(estimate)) 
-homicide_data %>%
+balt_city_glm <- hom_fit %>%
+  broom::tidy(conf.int=TRUE) %>%
+  mutate(OR = exp(estimate))
+all_city_glm <- homicide_data %>%
   group_by(city_state)  %>%
   nest() %>% 
-  mutate(hom_glm = map(data,~glm(formula = resolved ~ victim_age + victim_sex + victim_race,data=.x,family = binomial())),
-         hom_glm = map(hom_glm,broom::tidy,conf_int=TRUE))  %>% 
+  mutate(hom_glm = map(data,~glm(formula = resolved ~ victim_age + victim_sex + victim_race,data=.x,family = binomial()))) %>% 
+         mutate(hom_glm = map(hom_glm,broom::tidy,conf_int=TRUE))  %>% 
   select(-data) %>% 
   unnest() %>% 
   mutate(OR = exp(estimate))
@@ -65,6 +65,13 @@ Now run glm for each of the cities in your dataset, and extract the adjusted odd
 
 Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
 ```{r plot}
+all_city_glm %>% 
+  ggplot(data= .,
+         aes(x = city_state, y = estimate, ymin = conf.low, ymax = conf.high))
+  geom_point() +
+    geom_errorbar()
+    
+  #confidence intervals with dots.
 
 ```
 
