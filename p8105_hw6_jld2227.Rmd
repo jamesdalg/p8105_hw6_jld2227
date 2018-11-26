@@ -41,22 +41,25 @@ For the city of Baltimore, MD, use the glm function to fit a logistic regression
 apply the broom::tidy to this object;
 and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing non-white victims to white victims keeping all other variables fixed.
 
-```{r}
-hom_fit <- homicide_data %>%
+```{r, warning = F}
+balt_hom_fit <- homicide_data %>%
    filter(city_state == "Baltimore, MD") %$%
   glm(resolved ~ victim_age + victim_sex + victim_race,
       family = binomial())
-balt_city_glm <- hom_fit %>%
+balt_city_ci_or <- balt_hom_fit %>%
   broom::tidy(conf.int=TRUE) %>%
   mutate(OR = exp(estimate))
+balt_city_ci_or %>% 
+  knitr::kable()
 all_city_glm <- homicide_data %>%
   group_by(city_state)  %>%
   nest() %>% 
   mutate(hom_glm = map(data,~glm(formula = resolved ~ victim_age + victim_sex + victim_race,data=.x,family = binomial()))) %>% 
-         mutate(hom_glm = map(hom_glm,broom::tidy,conf_int=TRUE))  %>% 
-  select(-data) %>% 
+         mutate(hom_tidy = map(hom_glm,broom::tidy,conf.int=TRUE))  %>% 
+  select(-data,-hom_glm) %>% 
   unnest() %>% 
-  mutate(OR = exp(estimate))
+  mutate(OR = exp(estimate)) %>% 
+  filter(term == "victim_racenon-white")
 all_city_glm %>% 
  knitr::kable()  
 ```
@@ -66,12 +69,17 @@ Now run glm for each of the cities in your dataset, and extract the adjusted odd
 Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
 ```{r plot}
 all_city_glm %>% 
-  ggplot(data= .,
-         aes(x = city_state, y = estimate, ymin = conf.low, ymax = conf.high))
+  mutate(city_state = forcats::fct_reorder(city_state,OR)) %>% 
+  ggplot(data = .,
+  aes(x = city_state, y = estimate, ymin = conf.low, ymax = conf.high)) +
   geom_point() +
-    geom_errorbar()
+  geom_errorbar() +
+  theme(axis.text.x = element_text(angle = 270)) +
+  labs(x = "City, State",
+       title = "Odds Ratio Estimate, White-Nonwhite for unresolved cases",
+       y = "Odds Ratio")
     
-  #confidence intervals with dots.
+  
 
 ```
 
