@@ -46,15 +46,25 @@ hom_fit <- homicide_data %>%
    filter(city_state == "Baltimore, MD") %$%
   glm(resolved ~ victim_age + victim_sex + victim_race,
       family = binomial())
-hom_fit %>% 
+all_city_glm <- hom_fit %>% 
   broom::tidy(conf.int=TRUE) %>% 
   mutate(OR = exp(estimate)) 
 homicide_data %>%
-  group_by(city_state)  %>%  
-  glm(resolved ~ victim_age + victim_sex + victim_race,
-      family = binomial())
+  group_by(city_state)  %>%
+  nest() %>% 
+  mutate(hom_glm = map(data,~glm(formula = resolved ~ victim_age + victim_sex + victim_race,data=.x,family = binomial())),
+         hom_glm = map(hom_glm,broom::tidy,conf_int=TRUE))  %>% 
+  select(-data) %>% 
+  unnest() %>% 
+  mutate(OR = exp(estimate))
+all_city_glm %>% 
+ knitr::kable()  
 ```
 
 Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
 Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
+```{r plot}
+
+```
+

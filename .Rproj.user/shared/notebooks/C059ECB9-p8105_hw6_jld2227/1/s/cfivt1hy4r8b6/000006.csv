@@ -1,16 +1,18 @@
-"0","homicide_data <- read_csv(""https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"") %>% #read in data.
-  mutate( victim_first = iconv(x = victim_first, from = ""latin1"", to =  ""ASCII"",sub = """"),
-          victim_last = iconv(x = victim_last, from = ""latin1"", to =  ""ASCII"",sub = """"),
-          victim_age = as.numeric(victim_age),
-          #This removes nonstandard characters that cause problems with skimr.
-          city_state = str_c(city,"", "",state), #create city state variable by string concatenation.
-          unresolved = disposition %in% c(""Closed without arrest"",""Open/No arrest""),
-          #creates a variable for whether the case was  unresolved.
-          resolved = disposition %in% c(""Closed by arrest"")) %>% 
-#creates a variable for whether the case was resolved, to double check the numbers.
-#Included the resolved cases as a separate variable to clearly show that the resolved and unresolved cases sum to the total (and hence the calculations make sense).
-  filter(!(city_state %in% c(""Dallas, TX"",""Phoenix, AZ"",""Kansas City, MO"",""Tulsa, AL"")))
-"
+"0","homicide_data <- read_csv(""https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv"") %>% #read in data."
+"0","  mutate( victim_first = iconv(x = victim_first, from = ""latin1"", to =  ""ASCII"",sub = """"), #fixes bad characters in victim name"
+"0","          victim_last = iconv(x = victim_last, from = ""latin1"", to =  ""ASCII"",sub = """"),"
+"0","          victim_age = as.numeric(victim_age), #converts victim age to numeric."
+"0","          victim_race = ifelse(victim_race == ""White"",""white"",""non-white"") %>% #binarizes the categories to white or nonwhite, depending on if the race is ""White"" or not."
+"0","            as.factor() %>% #converts to factor"
+"0","            forcats::fct_relevel(""white"",""non_white""), #sets reference cat to white"
+"0","          #This removes nonstandard characters that cause problems with skimr."
+"0","          city_state = str_c(city,"", "",state), #create city state variable by string concatenation."
+"0","          unresolved = disposition %in% c(""Closed without arrest"",""Open/No arrest""),"
+"0","          #creates a variable for whether the case was  unresolved."
+"0","          resolved = disposition %in% c(""Closed by arrest"")) %>% "
+"0","#creates a variable for whether the case was resolved, to double check the numbers."
+"0","#Included the resolved cases as a separate variable to clearly show that the resolved and unresolved cases sum to the total (and hence the calculations make sense)."
+"0","  filter(!(city_state %in% c(""Dallas, TX"",""Phoenix, AZ"",""Kansas City, MO"",""Tulsa, AL"")))"
 "2","Parsed with column specification:
 cols(
   uid = col_character(),
@@ -28,12 +30,4 @@ cols(
 )
 "
 "2","NAs introduced by coercion"
-"0","hom_summ_tbl <- homicide_data %>% "
-"0","  group_by(city_state) %>%  "
-"0","  summarise(total = n(), #get the total number of cases by city_state combination."
-"0","            unresolved_cases = sum(unresolved), "
-"0","        #Gets the unresolved cases of each city state combination."
-"0","            resolved_cases = sum(resolved)"
-"0","        #Gets the resolved cases of each city state combination."
-"0","            ) %>% "
-"0","  select(city_state, unresolved_cases, resolved_cases, total) "
+"2","Unknown levels in `f`: non_white"
