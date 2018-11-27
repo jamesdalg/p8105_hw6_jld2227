@@ -83,3 +83,9 @@ all_city_glm %>%
 
 ```
 
+```{r}
+birthweight <- read_csv("http://p8105.com/data/birthweight.csv") %>%
+  mutate(babysex = as.factor(babysex)) %>% 
+  mutate(babysex = recode(babysex, `1` = 'male', `2` = 'female'))
+```
+
