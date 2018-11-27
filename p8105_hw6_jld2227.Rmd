@@ -12,10 +12,8 @@ library(magrittr)
 library(modelr)
 ```
 
-Instruction: Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race.
-Also omit Tulsa, AL – this is a data entry mistake.
-Modifiy victim_race to have categories white and non-white, with white as the reference category.
-Be sure that  victim_age is numeric.
+Instruction: Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race. Also omit Tulsa, AL – this is a data entry mistake.Modifiy victim_race to have categories white and non-white, with white as the reference category. Be sure that  victim_age is numeric.
+
 In this dataset, we'll look at the odds ratios of homicide victims by city and deduce, which cities have the highest risk of homicide for non-white victims as compared with white victims, with confidence intervals to get a sense of the plausible values of the odds ratio.
 
 To begin with, we'll pull the homicide data directly from the washington post
@@ -43,7 +41,8 @@ homicide_data %>%
 
 
 Instruction: For the city of Baltimore, MD, use the glm function to fit a logistic regression with resolved vs unresolved as the outcome and victim age, sex and race (as just defined) as predictors. Save the output of glm as an R object; apply the broom::tidy to this object; and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing non-white victims to white victims keeping all other variables fixed.
-Now, we'll focus on baltimore. It's a good example to start with, having many cases to base our odds ratios upon. We'll do this by filtering for cases only from baltimore, fitting a logistic regression model for resolved cases with age, sex, and race of the victim as predictors, then create confidence intervals using broom::tidy and odds ratios by calculating $OR=e^{estimate}$.
+
+Now, we'll focus on Baltimore. We'll do this by filtering for cases only from baltimore, fitting a logistic regression model for resolved cases with age, sex, and race of the victim as predictors, then create confidence intervals using broom::tidy and odds ratios by calculating $OR=e^{estimate}$ and doing the same to the lower and upper bound of that same estimate.
 
 ```{r baltimore, warning = F}
 balt_hom_fit <- homicide_data %>%
@@ -52,12 +51,15 @@ balt_hom_fit <- homicide_data %>%
       family = binomial())
 balt_city_ci_or <- balt_hom_fit %>%
   broom::tidy(conf.int=TRUE) %>%
-  mutate(OR = exp(estimate))
+  mutate(OR = exp(estimate), OR_conf.low = exp(conf.low), OR_conf.high = exp(conf.high))
 balt_city_ci_or %>% 
   knitr::kable()
 ```
-Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
-We'll do this by grouping by each City, State combination.
+Instruction: Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
+
+Now we'll grab the odds ratios for resolved white to nonwhite for all cities, not just baltimore.
+We'll do this by grouping by each City, State combination, nesting the individual City, State groups, then running a general linear model on the nested data (a column of tibbles),
+then we'll tidy the model output and produce confidence intervals.  We'll remove the nested data and unused glm objects from the tibble, unnest.  Utilizing the estimates, we'll calculate odds ratios again, for each city, under the same model. We'll filter these estimates for only those for the race factor (white-nonwhite) and following this, we'll display the top odds ratio city_states.
 ```{r all_cities, warning = FALSE}
 all_city_glm <- homicide_data %>%
   group_by(city_state)  %>%
@@ -66,31 +68,34 @@ all_city_glm <- homicide_data %>%
          mutate(hom_tidy = map(hom_glm,broom::tidy,conf.int=TRUE))  %>% 
   select(-data,-hom_glm) %>% 
   unnest() %>% 
-  mutate(OR = exp(estimate)) %>% 
+  mutate(OR = exp(estimate), OR_conf.low = exp(conf.low), OR_conf.high = exp(conf.high) ) %>% 
   filter(term == "victim_racenon-white")
 all_city_glm %>% 
+  arrange(-OR) %>% 
+  head() %>% 
  knitr::kable()  
 ```
 
+Instruction: Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
 
-Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
+Now, we'll visualze the ORs and CIs, sorted by the odds ratio value along the x axis.  We'll first accomplish this by changing the order of the odds ratio factor, then plotting the odds ratio along with it's confidence interval.
 ```{r plot}
 all_city_glm %>% 
   mutate(city_state = forcats::fct_reorder(city_state,OR)) %>% 
   ggplot(data = .,
-  aes(x = city_state, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  aes(x = city_state, y = OR, ymin = OR_conf.low, ymax = OR_conf.high)) +
   geom_point() +
   geom_errorbar() +
   theme(axis.text.x = element_text(angle = 270)) +
   labs(x = "City, State",
        title = "Odds Ratio Estimate, White-Nonwhite for unresolved cases",
-       y = "Odds Ratio")
-    
-  
-
+       y = "Odds Ratio & Confidence Interval")
 ```
-Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
+Instruction: Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
 
+To create a predictive model of birthweight, which is an indicator of newborn health, we'll examine a small dataset of children with several variables recorded for them, including maternal variables such as the mother's age at menarche, female race, number of live births, as well as paternal variables. The dataset also contains physical measurements of the baby, which likely have the strongest impact on the birthweight.
+
+We'll now read in the birthweight data, being careful to change the sex to a factor variable with "male" and "female", and we'll also make factors out of father's race, mother's race, prescnce of malformations in the child. The rest of the variables are in their appropriate form. 
 ```{r}
 birthweight <- read_csv("http://p8105.com/data/birthweight.csv", col_types = "cnnnnncnlnnncnnnnnnn") %>%
   mutate(babysex = as.factor(babysex)) %>% 
@@ -99,7 +104,7 @@ birthweight <- read_csv("http://p8105.com/data/birthweight.csv", col_types = "cn
   mutate(frace = as.factor(frace)) %>% 
   mutate(malform = as.factor(malform)) %>% 
   mutate(mrace = as.factor(mrace))
-  
+  skimr::skim(birthweight)
 ```
 
 Instruction: Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. 
