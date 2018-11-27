@@ -84,8 +84,13 @@ all_city_glm %>%
 ```
 
 ```{r}
-birthweight <- read_csv("http://p8105.com/data/birthweight.csv") %>%
+birthweight <- read_csv("http://p8105.com/data/birthweight.csv", col_types = "cnnnnncnlnnncnnnnnnn") %>%
   mutate(babysex = as.factor(babysex)) %>% 
-  mutate(babysex = recode(babysex, `1` = 'male', `2` = 'female'))
+  mutate(babysex = recode(babysex, `1` = 'male', `2` = 'female'))  %>% 
+  janitor::clean_names() %>% 
+  mutate(frace = as.factor(frace)) %>% 
+  mutate(malform = as.factor(malform)) %>% 
+  mutate(mrace = as.factor(mrace))
+  
 ```
 
