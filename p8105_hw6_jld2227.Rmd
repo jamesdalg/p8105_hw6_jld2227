@@ -24,27 +24,14 @@ convert age to numeric, change the victim race to a white-nonwhite only factor, 
 change this factor to have white as the reference category. We'll also create a city_state variable by combining city and state, identify which cases are unresolved (not closed by arrest). For a bit of a sanity check (to make sure numbers add up), we'll also add a variable for resolved cases. As such, the total cases should make up the resolved and unresolved cases, and they do. We'll also remove the non-existent city, Tulsa, AL, and Dallas, Phoenix, and Kansas City.
 ```{r data_import, message = F, warning = F}
 homicide_data <- read_csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv") %>% 
-#read in data.
-  mutate( victim_first = iconv(x = victim_first, from = "latin1", to =  "ASCII",sub = ""),            #fixes bad characters in victim name
-          victim_last = iconv(x = victim_last, from = "latin1", to =  "ASCII",sub = ""),
-          victim_age = as.numeric(victim_age), #converts victim age to numeric.
+  mutate( victim_first = iconv(x = victim_first, from = "latin1", to =  "ASCII",sub = ""),            victim_last = iconv(x = victim_last, from = "latin1", to =  "ASCII",sub = ""),
+          victim_age = as.numeric(victim_age), 
           victim_race = ifelse(victim_race == "White","white","non-white") %>% 
-          # binarizes the categories to white or nonwhite,
-          # depending on if the race is "White" or not.
-          as.factor() %>% #converts to factor
+          as.factor() %>% 
           forcats::fct_relevel("white","non_white"), 
-          #sets reference cat to white
-          #This removes nonstandard characters that cause problems with skimr.
           city_state = str_c(city,", ",state), 
-          #create city state variable by string concatenation.
           unresolved = disposition %in% c("Closed without arrest","Open/No arrest"),
-          #creates a variable for whether the case was  unresolved.
           resolved = disposition %in% c("Closed by arrest")) %>% 
-          #creates a variable for whether the case was resolved,
-          #to double check the numbers.
-          #Included the resolved cases as a separate variable to clearly show 
-          #that the resolved and unresolved cases sum to the total
-          #(and hence the calculations make sense).
   filter(!(city_state %in% 
   c("Dallas, TX","Phoenix, AZ","Kansas City, MO","Tulsa, AL")))
 
