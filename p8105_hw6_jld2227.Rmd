@@ -12,12 +12,11 @@ library(magrittr)
 library(modelr)
 ```
 
-instruction: Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race.
+Instruction: Create a city_state variable (e.g. “Baltimore, MD”), and a binary variable indicating whether the homicide is solved. Omit cities Dallas, TX; Phoenix, AZ; and Kansas City, MO – these don’t report victim race.
 Also omit Tulsa, AL – this is a data entry mistake.
 Modifiy victim_race to have categories white and non-white, with white as the reference category.
 Be sure that  victim_age is numeric.
 ```{r data_import}
-
 homicide_data <- read_csv("https://raw.githubusercontent.com/washingtonpost/data-homicides/master/homicide-data.csv") %>% #read in data.
   mutate( victim_first = iconv(x = victim_first, from = "latin1", to =  "ASCII",sub = ""), #fixes bad characters in victim name
           victim_last = iconv(x = victim_last, from = "latin1", to =  "ASCII",sub = ""),
@@ -33,7 +32,6 @@ homicide_data <- read_csv("https://raw.githubusercontent.com/washingtonpost/data
 #creates a variable for whether the case was resolved, to double check the numbers.
 #Included the resolved cases as a separate variable to clearly show that the resolved and unresolved cases sum to the total (and hence the calculations make sense).
   filter(!(city_state %in% c("Dallas, TX","Phoenix, AZ","Kansas City, MO","Tulsa, AL")))
-
 ```
 
 
@@ -203,8 +201,7 @@ lm(data = ., bwt ~ bhead + blength + gaweeks + delwt + wtgain + smoken) %>%
        subtitle = "bwt ~ bhead + blength + gaweeks + delwt + wtgain + smoken")
 ```
 From the plot, we can see that there is some slight fanning in the low residual values due to some outliers in the data, but otherwise, the residuals seem to be evenly distributed about zero.
-Compare your model to two others:
-
+Instruction: Compare your model to two others:
 One using length at birth and gestational age as predictors (main effects only)
 One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
 Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
