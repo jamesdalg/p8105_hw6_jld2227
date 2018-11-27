@@ -41,7 +41,7 @@ For the city of Baltimore, MD, use the glm function to fit a logistic regression
 apply the broom::tidy to this object;
 and obtain the estimate and confidence interval of the adjusted odds ratio for solving homicides comparing non-white victims to white victims keeping all other variables fixed.
 
-```{r, warning = F}
+```{r baltimore, warning = F}
 balt_hom_fit <- homicide_data %>%
    filter(city_state == "Baltimore, MD") %$%
   glm(resolved ~ victim_age + victim_sex + victim_race,
@@ -51,6 +51,10 @@ balt_city_ci_or <- balt_hom_fit %>%
   mutate(OR = exp(estimate))
 balt_city_ci_or %>% 
   knitr::kable()
+```
+Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
+
+```{r all_cities, warning = FALSE}
 all_city_glm <- homicide_data %>%
   group_by(city_state)  %>%
   nest() %>% 
@@ -64,7 +68,6 @@ all_city_glm %>%
  knitr::kable()  
 ```
 
-Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
 Create a plot that shows the estimated ORs and CIs for each city. Organize cities according to estimated OR, and comment on the plot.
 ```{r plot}
@@ -82,6 +85,7 @@ all_city_glm %>%
   
 
 ```
+Load and clean the data for regression analysis (i.e. convert numeric to factor where appropriate, check for missing data, etc.).
 
 ```{r}
 birthweight <- read_csv("http://p8105.com/data/birthweight.csv", col_types = "cnnnnncnlnnncnnnnnnn") %>%
@@ -94,3 +98,98 @@ birthweight <- read_csv("http://p8105.com/data/birthweight.csv", col_types = "cn
   
 ```
 
+Instruction: Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two. Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
+
+Perhaps the best way to build a model is with some user input based on hypothesis to begin with. Factors that do not affect birthweight significantly or have small effect sizes can be removed. We should do this with some sense of the distribution of the data (whether some variables are skewed in distribution or normal) and the linear relataionships between variables in the dataset to each other (correlations). 
+
+Our initial, hypothesis based model will include physical attributes of the newborn, including the length of the infant and the circumference of the head, as well as the age of the child at birth (in gestational weeks) as full-term infants are larger than premature ones. A priori, we would think that the number of low birth weight babies that each mother had would be helpful, but as we'll see, no one sampled had any low weight children prior to this study and it's a useless variable in this particular dataset.
+
+Here's our initial model, including the terms previously stated. We'll note that the number of low weight children for each mother of the individual children in the study simply drops out of the model.
+```{r}
+initreg <- birthweight %>%
+  glm(data = ., bwt ~ bhead + blength + gaweeks + pnumlbw)
+initreg %>% 
+  broom::glance()
+
+```
+Why it dropped out of the model becomes clear in the summaries below. pnumlbw ("previous number of low birth weight babies") and pnumsga ("number of prior small for gestational age babies") are zero from minimum to maximum. They should not be included in the model.
+```{r}
+skimr::skim_with(numeric = list(hist = NULL, min = min, max = max, kurtosis = e1071::kurtosis, skewness = e1071::skewness, IQR = IQR,
+mean = mean,
+cv = function(x){sd(x)/mean(x)})) #specifies that skimr should summarize additional variables (e.g. IQR, etc).
+skimr::skim(birthweight) %>% 
+  skimr::kable() 
+```
+We also note that there is some mild skewness, but only extreme in the parity variable ("number of live births prior to this pregnancy").
+```{r}
+#GGally::ggpairs(birthweight)
+
+  dplyr::select_if(.tbl = birthweight,.predicate = is.numeric)  %>% 
+  cor() %>% 
+corrplot::corrplot()
+```
+We could also produce a list of variables and their sorted correlations with the predictor. Doing so reveals that delwt (delivery weight) and weight gain (wtgain) might be added to the model as they have some of the strongest relationships with the predictor.
+```{r}
+dplyr::select_if(.tbl = birthweight,.predicate = is.numeric)  %>% 
+  cor() %>% 
+  as.data.frame() %>% 
+    add_rownames() %>% 
+  as.tibble() %>% 
+  select(rowname,bwt) %>% 
+  arrange(-bwt)
+```
+```{r}
+initreg_plus_2 <- birthweight %>%
+  glm(data = ., bwt ~ bhead + blength + gaweeks + delwt + wtgain) 
+initreg_plus_2 %>% 
+  broom::glance()
+
+```
+As a final step, we'll examine a full model and see if there are any variables that might be included as well, based on their effect sizes and p-values.
+```{r}
+birthweight %>%
+  glm(data = ., bwt ~ .) %>% 
+  broom::tidy() %>% 
+  arrange(p.value)
+```
+'Smoken' is the average number of cigarettes per day and seems to have a definite linear relationship with the outcome variable. What's further, these findings could have important health implications given the linear relationship is fairly strong.  We'll add this and compare all models discussed, along with the full and intercept only models for comparison. 
+```{r}
+smoke_model <- birthweight %>%
+  glm(data = ., bwt ~ bhead + blength + gaweeks + delwt + wtgain + smoken)
+full_model <- birthweight %>%
+  glm(data = ., bwt ~ .) 
+int_model <- birthweight %>%
+  glm(data = ., bwt ~ 0) 
+
+```
+```{r aic_plot}
+#tibble(aics = c(int_model %>% broom::glance() %>% pull(aic),full_model %>% pull(aic)))
+model_tibble <- list(int_model,initreg,initreg_plus_2,smoke_model,"full" = full_model) %>% 
+  map_dfr(broom::glance) %>% 
+  mutate(model_name = forcats::fct_inorder(c("intercept_only","head+len+wks","+delwt+wtgain","+smoke","full"))) %>%  
+  janitor::clean_names() %>% 
+  select(model_name,everything())
+model_tibble %>% 
+  knitr::kable()
+```
+As we'll notice, all the models have an AIC that is MUCH lower than the intercept, suggesting our variables are indeed better than random. We'll plot every model except for the intercept below, finding that although the model we ended with is great, it is not as optimal as the model including all variables.
+```{r}
+library(ggrepel)
+model_tibble %>%
+  filter(model_name != "intercept_only") %>% 
+  ggplot(aes(x=model_name, y = aic)) + 
+  geom_point(aes(fill=log_lik)) +
+  geom_line() + 
+  geom_text_repel(aes(label = aic)) +
+  scale_y_log10() +
+  labs(x = "Model", y = "AIC value, log scale", title = "Birthweight Models")
+```
+
+
+Compare your model to two others:
+
+One using length at birth and gestational age as predictors (main effects only)
+One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
+Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
+
+Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
