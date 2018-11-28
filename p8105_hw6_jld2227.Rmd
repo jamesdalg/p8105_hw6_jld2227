@@ -126,6 +126,8 @@ initreg %>%
   knitr::kable()
 
 ```
+
+
 Why it dropped out of the model becomes clear in the summaries below. pnumlbw ("previous number of low birth weight babies") and pnumsga ("number of prior small for gestational age babies") are zero from minimum to maximum. Both of these variables should not be included in the model.
 ```{r}
 skimr::skim_with(numeric = list(hist = NULL, min = min, max = max, kurtosis = e1071::kurtosis, skewness = e1071::skewness, IQR = IQR,
