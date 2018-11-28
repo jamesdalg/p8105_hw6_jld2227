@@ -55,6 +55,8 @@ balt_city_ci_or <- balt_hom_fit %>%
 balt_city_ci_or %>% 
   knitr::kable()
 ```
+
+
 Instruction: Now run glm for each of the cities in your dataset, and extract the adjusted odds ratio (and CI) for solving homicides comparing non-white victims to white victims. Do this within a “tidy” pipeline, making use of purrr::map, list columns, and unnest as necessary to create a dataframe with estimated ORs and CIs for each city.
 
 Now we'll grab the odds ratios for resolved white to nonwhite for all cities, not just baltimore.
