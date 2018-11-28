@@ -184,25 +184,27 @@ model_tibble <- list(int_model,initreg,initreg_plus_2,smoke_model,full_model) %>
 model_tibble %>% 
   knitr::kable()
 ```
-As we'll notice, all the models have an AIC that is MUCH lower than the intercept, suggesting our variables are indeed better than the model with no variables other than the intercept. We'll plot every model except for the intercept below, finding that although the model we ended with is great, it is not as optimal as the model including all variables. We'll color the points by the logliklihood of the model as well using thte viridis colorscale, produce points and lines to show the trend, and label the points using ggrepel, which stops points from overlapping with text.
+As we'll notice, all the models have an AIC that is MUCH lower than the intercept, suggesting our variables are indeed better than the model with no variables other than the intercept. We'll plot every model except for the intercept below, finding that although the model we ended with is great, it is not as optimal as the model including all variables. We'll produce points and lines to show the trend, and label the points using ggrepel, which stops points from overlapping with text.
 ```{r}
 library(ggrepel)
 model_tibble %>%
   filter(model_name != "intercept_only") %>% 
   ggplot(aes(x=model_name, y = aic, group = 1)) + 
-  geom_point(aes(fill=log_lik)) +
+  geom_point() +
   geom_line(aes(x = model_name, y =  aic)) + 
   geom_text_repel(aes(label = aic)) +
-  labs(x = "Model", y = "AIC value, log scale", title = "Birthweight Models") +
-  scale_fill_viridis_c()
+  labs(x = "Model", y = "AIC value", title = "Birthweight Models")
+
 ```
 Instruction: Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
+With our chosen model, we'll generate a diagnostic, residuals vs fitted plot.
+To do this, we'll use the model with the average number of cigarettes, add predictions and residuals using the modelr package, then create a scatterplot with y as the residuals and x as the predicted (fitted) value, and add appropriate titles with the labs function.
 ```{r}
 birthweight %>% 
 lm(data = ., bwt ~ bhead + blength + gaweeks + delwt + wtgain + smoken) %>% 
   modelr::add_predictions(data = birthweight, model=.) %>% 
   modelr::add_residuals(data = ., model=smoke_model) %>% 
-  ggplot(aes(x = pred,y = resid)) +
+  ggplot(aes(x = pred, y = resid)) +
   geom_point() +
   labs(x = "model residuals",
        y = "fitted (predicted) values",
@@ -210,20 +212,23 @@ lm(data = ., bwt ~ bhead + blength + gaweeks + delwt + wtgain + smoken) %>%
        subtitle = "bwt ~ bhead + blength + gaweeks + delwt + wtgain + smoken")
 ```
 From the plot, we can see that there is some slight fanning in the low residual values due to some outliers in the data, but otherwise, the residuals seem to be evenly distributed about zero.
-Instruction: Compare your model to two others:
-One using length at birth and gestational age as predictors (main effects only)
-One using head circumference, length, sex, and all interactions (including the three-way interaction) between these
-Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate.
+Instruction: Compare your model to two others: One using length at birth and gestational age as predictors (main effects only) One using head circumference, length, sex, and all interactions (including the three-way interaction) between these. Make this comparison in terms of the cross-validated prediction error; use crossv_mc and functions in purrr as appropriate. Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
 
-Instruction: Note that although we expect your model to be reasonable, model building itself is not a main idea of the course and we don’t necessarily expect your model to be “optimal”.
-```{r cross_validation}
+For model validation, we'll take our model and create two others for comparison. The first will feature only the length of the infant along with it's gestational age in weeks, a quantitative measure of prematurity.  The second will feature all interactions and additive terms featuring infant head circumerference, infant length, and given sex of the infant.
+
+```{r comparison_models}
 length_age_mod <- birthweight %>% 
   glm(data = ., bwt ~ blength + gaweeks )
 head_len_sex_mod <- birthweight %>% 
   glm(data = ., bwt ~ bhead*blength*babysex )
+```
+To do the cross validation, we'll create 100 80/20 splits of the data (resample objects) where 20% of the data is held back for testing, but which part of the data is the holdout set is randomized. For each test and train partition, we'll convert the resample objects (small datasize) to full size tibbles. On each of these, we'll run all three models and generate RMSE values, including our model with the number of cigarettes, the length/gestational weeks model, and the head circumference/length/sex interaction model. Setting the seed to 1 will allow reproducible splits for those who reknit this file. After generating the RMSEs, we'll use a select statement to get all three MSEs for all 100 test/train splits.
+
+With the RMSEs, we'll gather the RMSEs into a single variable with another variable as an ordered factor variable for the model. Utilizing this, we'll plot the model along the x axis and the rmse along the vertical axis using violin plots to show the distribution of the RMSEs in the randomized cross-validation splits for each model. It's clear that the lowest RMSE model is the one we chose. It is not perfect, as the AIC plot showed, but it is better than the other two in terms of error. Both complex models outperform the simple model, in this case.
+```{r cross_validation}
 set.seed(1)
 birthweight %>% 
-  modelr::crossv_mc(100) %>% 
+  modelr::crossv_mc(n = 100) %>% 
   mutate(train = map(train, as_tibble),
          test = map(test, as_tibble)) %>% 
   mutate(length_age_mod = map(train, ~lm(bwt ~ blength + gaweeks, data = .x)),
@@ -234,9 +239,10 @@ birthweight %>%
          rmse_smoke = map2_dbl(smoke_mod, test, ~rmse(model = .x, data = .y))) %>% 
   select(starts_with("rmse")) %>% 
   gather(key = model, value = rmse) %>% 
+  mutate(model = as.factor(model)) %>% 
+  mutate(model = fct_reorder(model,rmse)) %>% 
   ggplot(aes(x = model, y = rmse, color = model)) +
 geom_violin() +
-geom_point() +
   labs(x = "model",
        y = "Root Mean Squared Error", 
        title = "Distribution of RMSE values in 100 fold Cross Validation, by model")
