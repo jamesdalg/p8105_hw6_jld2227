@@ -95,7 +95,7 @@ Instruction: Load and clean the data for regression analysis (i.e. convert numer
 
 To create a predictive model of birthweight, which is an indicator of newborn health, we'll examine a small dataset of children with several variables recorded for them, including maternal variables such as the mother's age at menarche, female race, number of live births, as well as paternal variables. The dataset also contains physical measurements of the baby, which likely have the strongest impact on the birthweight.
 
-We'll now read in the birthweight data, being careful to change the sex to a factor variable with "male" and "female", and we'll also make factors out of father's race, mother's race, prescnce of malformations in the child. The rest of the variables are in their appropriate form. We also note there's no missing data from the table generated below.
+We'll now read in the birthweight data, being careful to change the sex to a factor variable with "male" and "female", and we'll also make factors out of father's race, mother's race, prescnce of malformations in the child. The rest of the variables are in their appropriate form. We also note there's no missing data from the table generated below of descriptive statistics (standard skimr stats with min, max, kurtosis, skewness, IQR, mean, cv).
 ```{r}
 birthweight <- read_csv("http://p8105.com/data/birthweight.csv", col_types = "cnnnnncnlnnncnnnnnnn") %>%
   mutate(babysex = as.factor(babysex)) %>% 
@@ -104,8 +104,11 @@ birthweight <- read_csv("http://p8105.com/data/birthweight.csv", col_types = "cn
   mutate(frace = as.factor(frace)) %>% 
   mutate(malform = as.factor(malform)) %>% 
   mutate(mrace = as.factor(mrace))
+skimr::skim_with(numeric = list(hist = NULL, min = min, max = max, kurtosis = e1071::kurtosis, skewness = e1071::skewness, IQR = IQR, mean = mean,
+cv = function(x){sd(x)/mean(x)})) 
   skimr::skim(birthweight)
 ```
+
 
 Instruction: Propose a regression model for birthweight. This model may be based on a hypothesized structure for the factors that underly birthweight, on a data-driven model-building process, or a combination of the two.  Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
 
@@ -114,11 +117,13 @@ Perhaps the best way to build a model is with some user input based on hypothesi
 Our initial, hypothesis based model will include physical attributes of the newborn, including the length of the infant and the circumference of the head, as well as the age of the child at birth (in gestational weeks) as full-term infants are larger than premature ones. A priori, we would think that the number of low birth weight babies that each mother had would be helpful, but as we'll see, no one sampled had any low weight children prior to this study and it's a useless variable in this particular dataset.
 
 Here's our initial model, including the terms previously stated. We'll note that the number of low weight children for each mother of the individual children in the study simply drops out of the model.
+
 ```{r initial_model}
 initreg <- birthweight %>%
   glm(data = ., bwt ~ bhead + blength + gaweeks + pnumlbw)
 initreg %>% 
-  broom::glance()
+  broom::glance() %>% 
+  knitr::kable()
 
 ```
 Why it dropped out of the model becomes clear in the summaries below. pnumlbw ("previous number of low birth weight babies") and pnumsga ("number of prior small for gestational age babies") are zero from minimum to maximum. Both of these variables should not be included in the model.
@@ -154,7 +159,8 @@ Knowing this, we'll add delivery weight and maternal weight gain to the model an
 initreg_plus_2 <- birthweight %>%
   glm(data = ., bwt ~ bhead + blength + gaweeks + delwt + wtgain) 
 initreg_plus_2 %>% 
-  broom::glance()
+  broom::glance() %>% 
+  knitr::kable()
 
 ```
 As a final step, we'll examine a full additive model and see if there are any variables that might be included as well, based on their effect sizes and p-values.
@@ -184,6 +190,8 @@ model_tibble <- list(int_model,initreg,initreg_plus_2,smoke_model,full_model) %>
 model_tibble %>% 
   knitr::kable()
 ```
+
+
 As we'll notice, all the models have an AIC that is MUCH lower than the intercept, suggesting our variables are indeed better than the model with no variables other than the intercept. We'll plot every model except for the intercept below, finding that although the model we ended with is great, it is not as optimal as the model including all variables. We'll produce points and lines to show the trend, and label the points using ggrepel, which stops points from overlapping with text.
 ```{r}
 library(ggrepel)
@@ -196,9 +204,12 @@ model_tibble %>%
   labs(x = "Model", y = "AIC value", title = "Birthweight Models")
 
 ```
+
 Instruction: Describe your modeling process and show a plot of model residuals against fitted values – use add_predictions and add_residuals in making this plot.
+
 With our chosen model, we'll generate a diagnostic, residuals vs fitted plot.
 To do this, we'll use the model with the average number of cigarettes, add predictions and residuals using the modelr package, then create a scatterplot with y as the residuals and x as the predicted (fitted) value, and add appropriate titles with the labs function.
+
 ```{r}
 birthweight %>% 
 lm(data = ., bwt ~ bhead + blength + gaweeks + delwt + wtgain + smoken) %>% 
