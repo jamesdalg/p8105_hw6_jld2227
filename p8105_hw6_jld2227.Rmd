@@ -163,6 +163,8 @@ initreg_plus_2 %>%
   knitr::kable()
 
 ```
+
+
 As a final step, we'll examine a full additive model and see if there are any variables that might be included as well, based on their effect sizes and p-values.
 ```{r}
 birthweight %>%
